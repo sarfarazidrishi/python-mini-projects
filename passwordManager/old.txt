@@ -1,0 +1,43 @@
+from cryptography.fernet import Fernet
+
+def write_key():
+    key=Fernet.generate_key()
+    with open("key.key", "wb") as key_File:
+        key_File.write(key)
+
+def keyLoad():
+    with open("key.key", "rb") as key_file:
+        return key_file.read()
+    
+key=keyLoad()
+f=Fernet(key)
+
+def view_pass():
+    with open ("passwords.txt", "r") as file: 
+        if file.readable():
+            for lines in file.readlines():
+             data= lines.strip()
+             user, encrypted_password = data.split("|")
+             decrypted_password=f.decrypt(encrypted_password.encode()).decode()
+             print(f" username: {user.strip().ljust(20)} password: {decrypted_password.strip()}")
+        else:
+            print("there is no user, please add user")
+            add_pass()
+            
+def add_pass():
+    name=input("Account name: ")
+    password=input("enter password: ")
+    encrypted_password=f.encrypt(password.encode()).decode()
+    with open('passwords.txt', "a") as file:
+        file.write(f"{name} | {encrypted_password}  \n")
+
+while True:
+    mode=input("would you like to add a new password or view existing (view, add, q to quit): ")
+    if mode=="q":
+        break
+    if mode=="view":
+        view_pass()
+    elif mode=="add":
+        add_pass()
+    else:
+        print("Enter valid mode: view, add or q")
